@@ -19,5 +19,3 @@ to_do_list = {
 #         "and category is",
 #         to_do_list[item]["category"],
 #     )
-
-print("test test")
