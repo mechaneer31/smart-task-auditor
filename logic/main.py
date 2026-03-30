@@ -11,11 +11,13 @@ to_do_list = {
 # print("buy groceries priority: ", {to_do_list["buy groceries"]["priority"]})
 
 
-for item in to_do_list:
-    print(
-        item,
-        "priority is",
-        to_do_list[item]["priority"],
-        "and category is",
-        to_do_list[item]["category"],
-    )
+# for item in to_do_list:
+#     print(
+#         item,
+#         "priority is",
+#         to_do_list[item]["priority"],
+#         "and category is",
+#         to_do_list[item]["category"],
+#     )
+
+print("test")
