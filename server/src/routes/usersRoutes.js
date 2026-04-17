@@ -3,13 +3,16 @@ const express = require("express")
 
 const router = express.Router()
 const usersControllers = require('../controllers/usersControllers.js')
-const { getUserById } = require('..//middleware/getUserById.js')
+const { getUserById } = require('../middleware/getUserById.js')
+const { encryptPassword } = require('../middleware/encryptPassword.js')
+
 
 
 
 //creating user
-router.post('/', usersControllers.createNewUser)
+router.post('/', encryptPassword, usersControllers.createNewUser)
 
+router.post('/login', usersControllers.userLogin)
 
 //getting user data
 router.get('/:id', getUserById, usersControllers.fetchUserInfo)

@@ -16,6 +16,17 @@ async function createUserQuery(username, password, first_name) {
 }
 
 
+async function deleteUserQuery(id) {
+    console.log("func: userInfoQuery; id to delete: ", id)
+    const sqlText = `
+        DELETE FROM users
+        WHERE id = ($1)
+    `;
+
+    const result = await pool.query(sqlText, [id])
+
+}
+
 async function userInfoQuery(id) {
     console.log("func: userInfoQuery; id to find: ", id)
     const sqlText = `
@@ -29,15 +40,18 @@ async function userInfoQuery(id) {
 
 }
 
-
-async function deleteUserQuery(id) {
-    console.log("func: userInfoQuery; id to delete: ", id)
+async function userLoginQuery(username) {
+    console.log("func: userLoginQuery: username: ", username)
     const sqlText = `
-        DELETE FROM users
-        WHERE id = ($1)
+        SELECT * FROM users
+        WHERE username = ($1)
     `;
 
-    const result = await pool.query(sqlText, [id])
+    const result = await pool.query(sqlText, [username])
+
+    console.log("after query result: ", result.rows[0])
+
+    return result.rows[0]
 
 }
 
@@ -45,6 +59,8 @@ async function deleteUserQuery(id) {
 
 module.exports = {
     createUserQuery,
+    deleteUserQuery,
     userInfoQuery,
-    deleteUserQuery
+    userLoginQuery
+
 }

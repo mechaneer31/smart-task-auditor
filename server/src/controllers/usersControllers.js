@@ -1,7 +1,40 @@
 const express = require('express')
-const app = express()
 const db = require('../../db/queries/usersQueries.js')
-const { getUserById } = require('..//middleware/getUserById.js')
+const bcrypt = require('bcryptjs')
+
+
+
+
+async function userLogin(req, res) {
+    console.log("user login function; req: ", req.body)
+
+    const { username: usernameGiven, password: passwordGiven } = req.body
+    console.log("start user login function: usernameGiven: ", usernameGiven)
+    try {
+        const user = await db.userLoginQuery(usernameGiven)
+
+        if (user === undefined) {
+            return res.status(401).json({ message: "Invalid credentials " })
+        }
+
+        const match = await bcrypt.compare(passwordGiven, user.password)
+
+        if (!match) {
+            return res.status(401).json({ message: "Invalid credentials " })
+        }
+
+        res.json({
+            message: "Login successful",
+            userId: user.id,
+            username: user.username,
+            userFirstName: user.first_name
+        })
+
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+
+    }
+}
 
 
 const fetchUserInfo = (req, res) => {
@@ -43,7 +76,10 @@ async function deleteUser(req, res) {
 
 
 
+
+
 module.exports = {
+    userLogin,
     fetchUserInfo,
     createNewUser,
     deleteUser
