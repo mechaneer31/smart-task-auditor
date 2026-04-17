@@ -2,8 +2,8 @@ const { Pool } = require("pg")
 
 module.exports = new Pool({
     host: "localhost",
-    user: chris,
+    user: "chris",
     database: "smart_task_auditor",
-    password: pgdbpass,
+    password: "pgdbpass",
     port: 5432
 })

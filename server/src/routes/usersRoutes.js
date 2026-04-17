@@ -2,21 +2,17 @@
 const express = require("express")
 
 const router = express.Router()
+const usersControllers = require('../controllers/usersControllers.js')
+const { getUserById } = require('..//middleware/getUserById.js')
 
 
-
-
-//getting one user data
-router.get('/:id', (req, res) => {
-    req.params.id
-    res.send(`user with id ${req.params.id} info`)
-})
 
 //creating user
-router.post('/', (req, res) => {
-    res.send("creating a new user")
+router.post('/', usersControllers.createNewUser)
 
-})
+
+//getting user data
+router.get('/:id', getUserById, usersControllers.fetchUserInfo)
 
 //updating user info
 router.patch('/:id', (req, res) => {
@@ -26,9 +22,6 @@ router.patch('/:id', (req, res) => {
 })
 
 //deleting user
-router.delete('/:id', (req, res) => {
-    req.params.id
-    res.send(`user with id ${req.params.id} is deleting account`)
-})
+router.delete('/:id', getUserById, usersControllers.deleteUser)
 
 module.exports = router
