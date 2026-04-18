@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon --env-file=.env ./src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dbMigration": "node models/002_alterUsersDatabase.js"
+    "dbMigration": "node ./db/migrations/run-migrations.js"
   },
   "keywords": [],
   "author": "",

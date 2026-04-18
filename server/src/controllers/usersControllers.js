@@ -1,19 +1,20 @@
 const express = require('express')
 const db = require('../../db/queries/usersQueries.js')
 const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
 
 
 
 
 async function userLogin(req, res) {
-    console.log("user login function; req: ", req.body)
+
 
     const { username: usernameGiven, password: passwordGiven } = req.body
-    console.log("start user login function: usernameGiven: ", usernameGiven)
+
     try {
         const user = await db.userLoginQuery(usernameGiven)
 
-        if (user === undefined) {
+        if (user.length === 0) {
             return res.status(401).json({ message: "Invalid credentials " })
         }
 
@@ -23,11 +24,23 @@ async function userLogin(req, res) {
             return res.status(401).json({ message: "Invalid credentials " })
         }
 
-        res.json({
+
+        const payload = {
             message: "Login successful",
             userId: user.id,
             username: user.username,
             userFirstName: user.first_name
+        }
+
+        const token = jwt.sign(
+            payload,
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        )
+
+        res.status(200).json({
+            message: "Login successful",
+            token: token
         })
 
     } catch (err) {
@@ -38,7 +51,7 @@ async function userLogin(req, res) {
 
 
 const fetchUserInfo = (req, res) => {
-    console.log("fetchUserInfo; req.user: ", req.user)
+
     const user = req.user
 
     if (!user) {
@@ -53,10 +66,10 @@ async function createNewUser(req, res) {
 
     try {
         const newUser = await db.createUserQuery(username, password, first_name)
-        console.log("user created: ", newUser)
+
         return res.status(201).json(newUser)
     } catch (err) {
-        console.log("error creating user")
+
         res.status(400).json({ message: err.message })
     }
 }
@@ -64,12 +77,17 @@ async function createNewUser(req, res) {
 
 async function deleteUser(req, res) {
     try {
-        const removeUser = await db.deleteUserQuery(req.params.id)
-        console.log("deleted user with id: ", req.params.id)
-        res.status(200).json({ message: "User deleted" })
+        console.log("delete users params: ", req.params.username)
+        const result = await db.deleteUserQuery(req.params.username)
+
+        if (result.rowCount === 0) return res.status(404).json({
+            message: "User not found"
+        })
+
+        return res.status(200).json({ message: "User deleted" })
 
     } catch (err) {
-        console.log("error deleting user")
+
         res.status(500).json({ message: err.message })
     }
 }

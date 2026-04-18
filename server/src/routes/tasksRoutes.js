@@ -1,33 +1,17 @@
 
 
 const express = require('express')
+const { authenticateToken } = require('../middleware/authenticateToken')
+const tasksControllers = require('../controllers/tasksControllers.js')
 const router = express.Router()
 
 
 
-//getting all users
-router.get('/', (req, res) => {
-    res.send("display all tasks")
-})
+//create task
+router.post('/', authenticateToken, tasksControllers.createNewTask)
 
-//display one task
-router.get('/:id', (req, res) => {
-    req.params.id
-})
+router.get('/', authenticateToken, tasksControllers.getAllTasks)
 
-//create a task
-router.post('/', (req, res) => {
-
-})
-
-//update a task
-router.patch('/:id', (req, res) => {
-
-})
-
-//deleting a task
-router.delete('/:id', (req, res) => {
-
-})
+router.get('/:id', authenticateToken, tasksControllers.getSingleTask)
 
 module.exports = router
