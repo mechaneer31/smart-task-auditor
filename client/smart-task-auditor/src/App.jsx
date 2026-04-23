@@ -9,7 +9,7 @@ import { jwtDecode } from 'jwt-decode'
 
 //Imported Pages
 import { LoginPage } from '../src/pages/Login/LoginPage'
-import { DashboardPage } from '../src/pages/DashboardPage'
+import { DashboardPage } from '../src/pages/dashboard/DashboardPage'
 
 
 
@@ -35,11 +35,13 @@ function App() {
             }
         }
 
-        const tokenStatus = localStorage.getItem('token')
+        setToken(currentToken)
 
-        if (tokenStatus) {
+        if (currentToken) {
+            console.log("App.jsx useEffect for token... navigating to dashboard page...")
             navigate('/dashboard')
         } else {
+            console.log("App.jsx useEffect for token... navigating to login page...")
             navigate('/login')
         }
     }, [navigate])
@@ -61,6 +63,7 @@ function App() {
                 <Route
                     path="dashboard"
                     element={<DashboardPage
+                        token={token}
                         setToken={setToken}
                         setUserData={setUserData}
                     />}
