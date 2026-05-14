@@ -14,4 +14,6 @@ router.get('/', authenticateToken, tasksControllers.getAllTasks)
 
 router.get('/:id', authenticateToken, tasksControllers.getSingleTask)
 
+router.delete('/:id', authenticateToken, tasksControllers.deleteTask)
+
 module.exports = router

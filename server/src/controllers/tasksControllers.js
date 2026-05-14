@@ -51,7 +51,11 @@ async function getSingleTask(req, res) {
     //console.log("task_id: ", task_id)
 
     try {
-        const { rows } = await db.getSingleTaskQuery(user_id, task_id)
+        const { rows } = await db.getSingleTaskQuery(task_id, user_id)
+
+        if (rows.length === 0) {
+            return res.status(401).json({ message: "Unauthorized to view that task" })
+        }
 
         return res.status(200).json(rows)
     } catch (err) {
@@ -61,9 +65,32 @@ async function getSingleTask(req, res) {
     }
 }
 
+async function deleteTask(req, res) {
+    const user_id = req.user.userId
+    const task_id = req.params.id
+
+    try {
+
+        const result = await db.deleteTaskQuery(task_id, user_id)
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: "Task to delete not found" })
+        }
+
+        res.status(200).json({ message: "Task deleted" })
+
+    } catch (err) {
+        console.error("Error deleting task: ", err.message)
+        res.status(500).json({ message: "Error deleting task" })
+    }
+
+
+}
+
 
 module.exports = {
     createNewTask,
+    deleteTask,
     getAllTasks,
     getSingleTask
 }

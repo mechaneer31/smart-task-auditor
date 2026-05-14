@@ -25,19 +25,32 @@ async function getAllTasksQuery(user_id) {
     return result
 }
 
-async function getSingleTaskQuery(user_id, task_id) {
+async function getSingleTaskQuery(task_id, user_id) {
     const sqlText = `
         SELECT * FROM tasks
-        WHERE user_id = $1 AND id = $2
+        WHERE id = $1 AND user_id = $2
     `;
 
-    const result = await pool.query(sqlText, [user_id, task_id])
+    const result = await pool.query(sqlText, [task_id, user_id])
+
+    return result
+}
+
+async function deleteTaskQuery(task_id, user_id) {
+
+    sqlText = `
+        DELETE FROM tasks
+        WHERE id = $1 AND user_id = $2
+    `;
+
+    const result = await pool.query(sqlText, [task_id, user_id])
 
     return result
 }
 
 module.exports = {
     createNewTaskQuery,
+    deleteTaskQuery,
     getAllTasksQuery,
     getSingleTaskQuery
 }

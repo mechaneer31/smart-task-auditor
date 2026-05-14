@@ -24,12 +24,8 @@ async function userLogin(req, res) {
             return res.status(401).json({ message: "Invalid credentials " })
         }
 
-
         const payload = {
-            message: "Login successful",
-            userId: user.id,
-            username: user.username,
-            userFirstName: user.first_name
+            userId: user.id
         }
 
         const token = jwt.sign(
@@ -40,7 +36,10 @@ async function userLogin(req, res) {
 
         res.status(200).json({
             message: "Login successful",
-            token: token
+            token: token,
+            userId: user.id,
+            username: user.username,
+            firstName: user.firstName
         })
 
     } catch (err) {

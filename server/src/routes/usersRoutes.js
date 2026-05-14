@@ -18,13 +18,6 @@ router.post('/login', usersControllers.userLogin)
 //getting user data
 router.get('/:username', authenticateToken, getUserById, usersControllers.fetchUserInfo)
 
-//updating user info
-router.patch('/:username', (req, res) => {
-    req.params.username
-    res.send(`user with id ${req.params.username} updating info`)
-
-})
-
 //deleting user
 router.delete('/:username', authenticateToken, usersControllers.deleteUser)
 
