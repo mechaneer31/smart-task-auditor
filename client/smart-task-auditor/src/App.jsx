@@ -18,6 +18,7 @@ function App() {
     const [token, setToken] = useState(null)
     const [userData, setUserData] = useState([])
 
+
     let navigate = useNavigate()
 
     useEffect(() => {
@@ -33,6 +34,7 @@ function App() {
             if (decoded.exp < currentTime) {
                 localStorage.removeItem('token')
             }
+
         }
 
         setToken(currentToken)
@@ -67,6 +69,10 @@ function App() {
                         setToken={setToken}
                         setUserData={setUserData}
                     />}
+                />
+
+                <Route
+
                 />
 
             </Routes>
