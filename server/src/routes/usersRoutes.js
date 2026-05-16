@@ -18,6 +18,8 @@ router.post('/login', usersControllers.userLogin)
 //getting user data
 router.get('/:username', authenticateToken, getUserById, usersControllers.fetchUserInfo)
 
+router.patch('/:username', authenticateToken, getUserById, encryptPassword, usersControllers.updateUser)
+
 //deleting user
 router.delete('/:username', authenticateToken, usersControllers.deleteUser)
 

@@ -28,14 +28,14 @@ async function deleteUserQuery(username) {
 
 }
 
-async function userInfoQuery(id) {
+async function userInfoQuery(username) {
 
     const sqlText = `
         SELECT * FROM users
-        WHERE id = ($1)
+        WHERE username = ($1)
     `;
 
-    const result = await pool.query(sqlText, [id])
+    const result = await pool.query(sqlText, [username])
 
     return result.rows[0]
 

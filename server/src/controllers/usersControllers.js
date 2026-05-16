@@ -91,7 +91,46 @@ async function deleteUser(req, res) {
     }
 }
 
+async function updateUser(req, res) {
 
+    //console.log(req)
+    const user = req.user
+    //console.log(user)
+    const userId = user.id
+    console.log(userId)
+
+
+    const allowedUpdates = ['username', 'password', 'first_name', 'email']
+
+    const acutalUpdates = Object.keys(req.body).filter(key => allowedUpdates.includes(key) && req.body[key] !== undefined)
+
+    if (acutalUpdates.length === 0) {
+        return res.status(400).json({ message: "No valid fields provided" })
+    }
+
+    const setAssignments = acutalUpdates.map((columnName, index) => `"${columnName}" = $${index + 1}`)
+    const setClause = setAssignments.join(', ')
+    const queryText = `UPDATE users SET ${setClause} WHERE id = $${acutalUpdates.length + 1} RETURNING id, username, first_name`
+
+    const queryValues = [...acutalUpdates.map(key => req.body[key]), userId]
+
+    try {
+
+        const result = await db.query(queryText, queryValues)
+
+        if (result.rowCount === 0) {
+            return res.status(400).json({ message: "User not found" })
+        }
+
+        res.status(200).json({ message: "Update successful", user: result.rows[0] })
+
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: "Database error" })
+    }
+
+
+}
 
 
 
@@ -99,5 +138,6 @@ module.exports = {
     userLogin,
     fetchUserInfo,
     createNewUser,
-    deleteUser
+    deleteUser,
+    updateUser
 }
