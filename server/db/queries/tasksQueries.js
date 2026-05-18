@@ -2,14 +2,14 @@
 
 const pool = require('.././pool')
 
-async function createNewTaskQuery(title, description, priority, category, user_id) {
+async function createNewTaskQuery(title, description, priority, category, due_date, user_id) {
     const sqlText = `
-        INSERT INTO tasks (title, description, priority, category, user_id)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO tasks (title, description, priority, category, due_date, user_id)
+        VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *
     `;
 
-    const result = await pool.query(sqlText, [title, description, priority, category, user_id])
+    const result = await pool.query(sqlText, [title, description, priority, category, due_date, user_id])
 
     return result.rows[0]
 }

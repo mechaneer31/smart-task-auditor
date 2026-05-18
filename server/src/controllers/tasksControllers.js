@@ -1,5 +1,6 @@
 
 const db = require('../../db/queries/tasksQueries.js')
+const dbDynamic = require('../../db/pool.js')
 
 
 async function createNewTask(req, res) {
@@ -16,6 +17,7 @@ async function createNewTask(req, res) {
             description,
             priority,
             category,
+            due_date,
             user_id
         )
 
@@ -87,10 +89,58 @@ async function deleteTask(req, res) {
 
 }
 
+async function updateTaskInfo(req, res) {
+    const taskId = req.params.id
+    const { userId, ...taskFieldsToUpdate } = req.body
+
+    const allowedUpdates = ['title', 'description', 'is_complete', 'priority', 'category', 'due_date']
+
+    const actualTaskUpdates = Object.keys(taskFieldsToUpdate).filter(key => allowedUpdates.includes(key) &&
+        taskFieldsToUpdate[key] !== undefined)
+
+    if (actualTaskUpdates.length === 0) {
+        return res.status(400).json({ message: "No valid task fields provided" })
+    }
+
+    const setAssignments = actualTaskUpdates.map((columnName, index) => `"${columnName}" = $${index + 1}`)
+    const setClause = setAssignments.join(', ')
+
+    const taskIdPlaceholder = actualTaskUpdates.length + 1
+    const userIdPlaceholder = actualTaskUpdates.length + 2
+
+    const queryText = `
+    UPDATE tasks 
+    SET ${setClause}, updated_at = NOW()
+    WHERE id = $${taskIdPlaceholder} AND user_id = $${userIdPlaceholder} 
+    Returning *;
+    `
+
+    const queryValues = [
+        ...actualTaskUpdates.map(key => taskFieldsToUpdate[key]),
+        taskId,
+        userId
+    ]
+
+    try {
+
+        const result = await dbDynamic.query(queryText, queryValues)
+
+        if (result.rowCount === 0) {
+            return res.status(400).json({ message: "Task not found" })
+        }
+
+        res.status(200).json({ message: "Task update successful", task: result.rows[0] })
+
+    } catch (error) {
+        return res.status(500).json({ error: "Database error" })
+    }
+}
+
 
 module.exports = {
     createNewTask,
     deleteTask,
     getAllTasks,
-    getSingleTask
+    getSingleTask,
+    updateTaskInfo
 }
