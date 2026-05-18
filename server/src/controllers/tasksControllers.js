@@ -91,7 +91,8 @@ async function deleteTask(req, res) {
 
 async function updateTaskInfo(req, res) {
     const taskId = req.params.id
-    const { userId, ...taskFieldsToUpdate } = req.body
+    const userId = req.user.userId
+    const { ...taskFieldsToUpdate } = req.body
 
     const allowedUpdates = ['title', 'description', 'is_complete', 'priority', 'category', 'due_date']
 

@@ -3,14 +3,14 @@
 
 const pool = require('.././pool')
 
-async function createUserQuery(username, password, first_name) {
+async function createUserQuery(username, password, first_name, email) {
     const sqlText = `
-        INSERT INTO users (username, password, first_name)
-        VALUES ($1, $2, $3)
-        RETURNING *
+        INSERT INTO users (username, password, first_name, email)
+        VALUES ($1, $2, $3, $4)
+        RETURNING username, first_name, email
     `;
 
-    const result = await pool.query(sqlText, [username, password, first_name])
+    const result = await pool.query(sqlText, [username, password, first_name, email])
 
     return result.rows[0]
 }

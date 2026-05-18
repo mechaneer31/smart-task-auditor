@@ -63,10 +63,10 @@ const fetchUserInfo = (req, res) => {
 }
 
 async function createNewUser(req, res) {
-    const { username, password, first_name } = req.body
+    const { username, password, first_name, email } = req.body
 
     try {
-        const newUser = await db.createUserQuery(username, password, first_name)
+        const newUser = await db.createUserQuery(username, password, first_name, email)
 
         return res.status(201).json(newUser)
     } catch (err) {
@@ -96,7 +96,12 @@ async function deleteUser(req, res) {
 async function updateUserInfo(req, res) {
 
     //console.log(req)
-    const { userId, ...fieldsToUpdate } = req.body
+    const userId = req.user.userId
+    const { ...fieldsToUpdate } = req.body
+
+    if (!userId) {
+        return res.status(403).json({ message: "No userId provided" })
+    }
 
 
     const allowedUpdates = ['username', 'password', 'first_name', 'email']
@@ -109,7 +114,11 @@ async function updateUserInfo(req, res) {
 
     const setAssignments = actualUpdates.map((columnName, index) => `"${columnName}" = $${index + 1}`)
     const setClause = setAssignments.join(', ')
-    const queryText = `UPDATE users SET ${setClause} WHERE id = $${actualUpdates.length + 1} RETURNING id, username, first_name`
+    const queryText = `
+    UPDATE users 
+    SET ${setClause}, updated_at = NOW()
+    WHERE id = $${actualUpdates.length + 1} 
+    RETURNING id, username, first_name, email`
 
     const queryValues = [...actualUpdates.map(key => fieldsToUpdate[key]), userId]
 
