@@ -8,7 +8,7 @@ async function getUserById(req, res, next) {
     let user
 
     try {
-        user = await db.userInfoQuery(req.params.username)
+        user = await db.userInfoByIdQuery(req.params.id)
         if (user === null) {
             return res.status(404).json({ message: 'Cannont find user' })
         }
@@ -18,7 +18,7 @@ async function getUserById(req, res, next) {
     }
 
 
-    console.log("end of getUserById, user info: ", user)
+
     req.user = user
     next()
 

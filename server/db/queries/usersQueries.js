@@ -28,18 +28,19 @@ async function deleteUserQuery(username) {
 
 }
 
-async function userInfoQuery(username) {
+async function userInfoByIdQuery(id) {
 
     const sqlText = `
         SELECT * FROM users
-        WHERE username = ($1)
+        WHERE id = ($1)
     `;
 
-    const result = await pool.query(sqlText, [username])
+    const result = await pool.query(sqlText, [id])
 
     return result.rows[0]
 
 }
+
 
 async function userLoginQuery(username) {
 
@@ -60,7 +61,7 @@ async function userLoginQuery(username) {
 module.exports = {
     createUserQuery,
     deleteUserQuery,
-    userInfoQuery,
+    userInfoByIdQuery,
     userLoginQuery
 
 }

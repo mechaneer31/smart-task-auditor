@@ -1,7 +1,9 @@
 const express = require('express')
 const db = require('../../db/queries/usersQueries.js')
+const dbDynamic = require('../../db/pool.js')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+
 
 
 
@@ -39,7 +41,7 @@ async function userLogin(req, res) {
             token: token,
             userId: user.id,
             username: user.username,
-            firstName: user.firstName
+            firstName: user.first_name
         })
 
     } catch (err) {
@@ -91,32 +93,29 @@ async function deleteUser(req, res) {
     }
 }
 
-async function updateUser(req, res) {
+async function updateUserInfo(req, res) {
 
     //console.log(req)
-    const user = req.user
-    //console.log(user)
-    const userId = user.id
-    console.log(userId)
+    const { userId, ...fieldsToUpdate } = req.body
 
 
     const allowedUpdates = ['username', 'password', 'first_name', 'email']
 
-    const acutalUpdates = Object.keys(req.body).filter(key => allowedUpdates.includes(key) && req.body[key] !== undefined)
+    const actualUpdates = Object.keys(fieldsToUpdate).filter(key => allowedUpdates.includes(key) && fieldsToUpdate[key] !== undefined)
 
-    if (acutalUpdates.length === 0) {
+    if (actualUpdates.length === 0) {
         return res.status(400).json({ message: "No valid fields provided" })
     }
 
-    const setAssignments = acutalUpdates.map((columnName, index) => `"${columnName}" = $${index + 1}`)
+    const setAssignments = actualUpdates.map((columnName, index) => `"${columnName}" = $${index + 1}`)
     const setClause = setAssignments.join(', ')
-    const queryText = `UPDATE users SET ${setClause} WHERE id = $${acutalUpdates.length + 1} RETURNING id, username, first_name`
+    const queryText = `UPDATE users SET ${setClause} WHERE id = $${actualUpdates.length + 1} RETURNING id, username, first_name`
 
-    const queryValues = [...acutalUpdates.map(key => req.body[key]), userId]
+    const queryValues = [...actualUpdates.map(key => fieldsToUpdate[key]), userId]
 
     try {
 
-        const result = await db.query(queryText, queryValues)
+        const result = await dbDynamic.query(queryText, queryValues)
 
         if (result.rowCount === 0) {
             return res.status(400).json({ message: "User not found" })
@@ -139,5 +138,5 @@ module.exports = {
     fetchUserInfo,
     createNewUser,
     deleteUser,
-    updateUser
+    updateUserInfo
 }
