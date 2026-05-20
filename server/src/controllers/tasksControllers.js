@@ -5,7 +5,7 @@ const dbDynamic = require('../../db/pool.js')
 
 async function createNewTask(req, res) {
     //get title, description, priority and category
-    const { title, description, priority, category } = req.body
+    const { title, description, priority, category, due_date } = req.body
 
     //jwt sets up a user request that has users id, username and first_name
     const user_id = req.user.userId
@@ -33,10 +33,57 @@ async function createNewTask(req, res) {
 async function getAllTasks(req, res) {
     const user_id = req.user.userId
 
-    try {
-        const { rows } = await db.getAllTasksQuery(user_id)
+    let queryText = `SELECT * FROM tasks WHERE user_id = $1`
+    const queryValues = [user_id]
 
-        return res.status(200).json(rows)
+    const allowedFilters = ['priority', 'is_completed', 'due_date', 'category']
+    allowedFilters.forEach((filterKey) => {
+        if (req.query[filterKey] !== undefined && req.query(filterKey) !== '') {
+            const nextPlaceholder = queryValues.length + 1
+            queryText += `AND "${filterKey}" = $${nextPlaceholder}`
+            queryValues.push(req.query[filterKey])
+        }
+    })
+
+    const sortBy = req.query.sortBy
+    const thenBy = req.query.thenBy || 'newest'
+
+    let orderByClause = ''
+
+    switch (sortBy) {
+        case 'due_date':
+            orderByClause = ` ORDER BY due_date ASC NULLS LAST, created_at DESC;`;
+            break;
+
+        case 'newest':
+            orderByClause = ` ORDER BY created_at DESC;`;
+            break;
+
+        case 'oldest':
+            orderByClause = ` ORDER BY created_at ASC;`;
+            break;
+
+        case 'priority':
+        default:
+            orderByClause = `
+        ORDER BY 
+          CASE priority
+            WHEN 'Urgent' THEN 1
+            WHEN 'High' THEN 2
+            WHEN 'Medium' THEN 3
+            WHEN 'Low' THEN 4
+          END ASC,
+          created_at DESC;
+      `;
+            break;
+    }
+
+    queryText += orderByClause
+
+    try {
+        const result = await dbDynamic.query(queryText, queryValues)
+
+        return res.status(200).json(result.rows)
 
     } catch (err) {
         console.error("Error getting all tasks: ", err.message)
@@ -47,10 +94,6 @@ async function getAllTasks(req, res) {
 async function getSingleTask(req, res) {
     const user_id = req.user.userId
     const task_id = req.params.id
-
-    //console.log("before single task query")
-    //console.log("user_id: ", user_id)
-    //console.log("task_id: ", task_id)
 
     try {
         const { rows } = await db.getSingleTaskQuery(task_id, user_id)
