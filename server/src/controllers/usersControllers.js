@@ -5,52 +5,6 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
 
-
-
-
-async function userLogin(req, res) {
-
-
-    const { username: usernameGiven, password: passwordGiven } = req.body
-
-    try {
-        const user = await db.userLoginQuery(usernameGiven)
-
-        if (user.length === 0) {
-            return res.status(401).json({ message: "Invalid credentials " })
-        }
-
-        const match = await bcrypt.compare(passwordGiven, user.password)
-
-        if (!match) {
-            return res.status(401).json({ message: "Invalid credentials " })
-        }
-
-        const payload = {
-            userId: user.id
-        }
-
-        const token = jwt.sign(
-            payload,
-            process.env.JWT_SECRET,
-            { expiresIn: '1h' }
-        )
-
-        res.status(200).json({
-            message: "Login successful",
-            token: token,
-            userId: user.id,
-            username: user.username,
-            firstName: user.first_name
-        })
-
-    } catch (err) {
-        res.status(500).json({ message: err.message })
-
-    }
-}
-
-
 const fetchUserInfo = (req, res) => {
 
     const user = req.user
@@ -62,18 +16,7 @@ const fetchUserInfo = (req, res) => {
     res.json({ username: user.username, first_name: user.first_name })
 }
 
-async function createNewUser(req, res) {
-    const { username, password, first_name, email } = req.body
 
-    try {
-        const newUser = await db.createUserQuery(username, password, first_name, email)
-
-        return res.status(201).json(newUser)
-    } catch (err) {
-
-        res.status(400).json({ message: err.message })
-    }
-}
 
 
 async function deleteUser(req, res) {
@@ -89,7 +32,7 @@ async function deleteUser(req, res) {
 
     } catch (err) {
 
-        res.status(500).json({ message: err.message })
+        next(error)
     }
 }
 
@@ -133,8 +76,7 @@ async function updateUserInfo(req, res) {
         res.status(200).json({ message: "Update successful", user: result.rows[0] })
 
     } catch (error) {
-        console.error(error)
-        res.status(500).json({ error: "Database error" })
+        next(error)
     }
 
 
@@ -143,9 +85,7 @@ async function updateUserInfo(req, res) {
 
 
 module.exports = {
-    userLogin,
     fetchUserInfo,
-    createNewUser,
     deleteUser,
     updateUserInfo
 }

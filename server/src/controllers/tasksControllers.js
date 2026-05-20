@@ -24,8 +24,7 @@ async function createNewTask(req, res) {
         return res.status(201).json(newTask)
 
     } catch (err) {
-        console.error("Error creating task: ", err.message)
-        res.status(500).json({ message: "Could not create task" })
+        next(error)
     }
 }
 
@@ -86,8 +85,7 @@ async function getAllTasks(req, res) {
         return res.status(200).json(result.rows)
 
     } catch (err) {
-        console.error("Error getting all tasks: ", err.message)
-        res.status(500).json({ message: "Error getting all tasks" })
+        next(error)
     }
 }
 
@@ -104,8 +102,7 @@ async function getSingleTask(req, res) {
 
         return res.status(200).json(rows)
     } catch (err) {
-        console.error("Error getting single task: ", err.message)
-        res.status(500).json({ message: "Error getting single task" })
+        next(error)
 
     }
 }
@@ -125,8 +122,7 @@ async function deleteTask(req, res) {
         res.status(200).json({ message: "Task deleted" })
 
     } catch (err) {
-        console.error("Error deleting task: ", err.message)
-        res.status(500).json({ message: "Error deleting task" })
+        next(error)
     }
 
 
@@ -176,7 +172,7 @@ async function updateTaskInfo(req, res) {
         res.status(200).json({ message: "Task update successful", task: result.rows[0] })
 
     } catch (error) {
-        return res.status(500).json({ error: "Database error" })
+        next(error)
     }
 }
 
