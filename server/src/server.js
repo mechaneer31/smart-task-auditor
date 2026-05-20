@@ -17,7 +17,7 @@ app.use(express.json())
 
 //establish router for each route file:
 const authRouter = require('.././src/routes/authRoutes.js')
-app.use('/api', authRouter)
+app.use('/api/auth', authRouter)
 
 const usersRouter = require('.././src/routes/usersRoutes.js')
 app.use('/api/users', usersRouter)

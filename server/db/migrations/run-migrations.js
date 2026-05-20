@@ -3,8 +3,15 @@ const path = require('path')
 const { Client } = require('pg')
 require('dotenv').config()
 
+const dbUser = process.env.DB_USER
+const dbPassword = process.env.DB_PASSWORD
+const dbHost = process.env.DB_HOST
+const dbPort = process.env.DB_PORT
+const dbName = process.env.DB_NAME
+const dbURL = `postgresql://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbName}`
+
 const client = new Client({
-    connectionString: process.env.DATABASE_URL
+    connectionString: dbURL
 })
 
 async function run() {

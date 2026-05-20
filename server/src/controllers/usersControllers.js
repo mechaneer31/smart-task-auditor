@@ -13,7 +13,7 @@ const fetchUserInfo = (req, res) => {
         res.status(404).json({ message: "User not found " })
     }
 
-    res.json({ username: user.username, first_name: user.first_name })
+    res.json({ username: user.username, first_name: user.first_name, email: user.email })
 }
 
 
